@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SYS-CORE // Authentication</title>
+    <title>Login page</title>
     <link rel="stylesheet" href="global.css">
     <style>
         .login-wrapper {
@@ -66,7 +66,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </style>
 </head>
 <body>
-
+<!-- Toast Notification System -->
+<?php if (isset($_SESSION['toast'])): ?>
+    <div class="toast-container">
+        <div class="toast <?php echo $_SESSION['toast']['type']; ?>" id="sys-toast">
+            <?php echo htmlspecialchars($_SESSION['toast']['msg']); ?>
+        </div>
+    </div>
+    <script>
+        // Remove from DOM after 5 seconds
+        setTimeout(() => {
+            const toast = document.getElementById('sys-toast');
+            if (toast) toast.remove();
+        }, 5000);
+    </script>
+    <?php unset($_SESSION['toast']); // Clear the message so it doesn't show again ?>
+<?php endif; ?>
+</body>
     <nav class="navbar">
         <div class="nav-links">
             <a href="index.php">Return to Main</a>
@@ -75,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <main class="container login-wrapper">
         <div class="glass-panel" style="width: 100%; max-width: 450px;">
-            <h2 style="text-align: center; color: var(--neon-cyan);">System Login</h2>
+            <h2 style="text-align: center; color: var(--neon-cyan);">Login</h2>
             
             <?php if (!empty($error_message)): ?>
                 <div class="error-alert">
@@ -97,9 +113,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <button type="submit" class="btn" style="width: 100%; margin-top: 1.5rem; padding: 1rem; font-size: 1.2rem;">
                     Authenticate
                 </button>
+                <div style="text-align: center; margin-top: 1.5rem;">
+    <span style="color: var(--text-muted);">No active profile?</span>
+    <a href="signup.php" style="color: var(--neon-cyan); text-decoration: none; font-weight: 600; margin-left: 0.5rem;">Register Here</a>
+</div>
             </form>
         </div>
+        
     </main>
 
-</body>
+
 </html>

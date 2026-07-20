@@ -150,6 +150,26 @@ h2 {
     background: rgba(0, 243, 255, 0.05);
 }
 
+.alert-card {
+    margin: 1rem 0 1.5rem;
+    padding: 1rem;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.alert-card.success {
+    border-left: 5px solid var(--neon-cyan);
+}
+
+.alert-card.error {
+    border-left: 5px solid var(--neon-red);
+    color: var(--neon-red);
+}
+
 /* Fix select dropdown styling in dark mode */
 select.form-control option {
     background: var(--bg-dark);
@@ -204,4 +224,50 @@ tr:hover td {
 .table-input:focus {
     border-color: var(--neon-cyan);
     outline: none;
+}
+
+/* --- Toast Notifications (Popups) --- */
+.toast-container {
+    position: fixed !important;
+    top: 30px !important;
+    right: 30px !important;
+    bottom: auto !important;
+    left: auto !important;
+    z-index: 99999 !important; /* Forces it above all other elements */
+}
+
+.toast {
+    background: var(--bg-panel);
+    backdrop-filter: blur(15px);
+    border: var(--glass-border);
+    border-left: 5px solid var(--neon-cyan);
+    color: #fff;
+    padding: 1.2rem 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8);
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    min-width: 300px;
+    text-align: center;
+    
+    /* Animation: Slide in from the right, wait, fade out at 5 seconds */
+    opacity: 0;
+    transform: translateX(120%);
+    animation: slideInRight 0.5s forwards, fadeOut 0.5s 4.5s forwards;
+}
+
+/* Error Variation */
+.toast.error {
+    border-left-color: var(--neon-red);
+}
+
+@keyframes slideInRight {
+    from { opacity: 0; transform: translateX(120%); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; visibility: hidden; }
 }

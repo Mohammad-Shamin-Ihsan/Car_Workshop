@@ -40,6 +40,22 @@ try {
     <link rel="stylesheet" href="global.css">
 </head>
 <body>
+    <!-- Toast Notification System -->
+<?php if (isset($_SESSION['toast'])): ?>
+    <div class="toast-container">
+        <div class="toast <?php echo $_SESSION['toast']['type']; ?>" id="sys-toast">
+            <?php echo htmlspecialchars($_SESSION['toast']['msg']); ?>
+        </div>
+    </div>
+    <script>
+        // Remove from DOM after 5 seconds
+        setTimeout(() => {
+            const toast = document.getElementById('sys-toast');
+            if (toast) toast.remove();
+        }, 5000);
+    </script>
+    <?php unset($_SESSION['toast']); // Clear the message so it doesn't show again ?>
+<?php endif; ?>
 
     <!-- Admin Navbar -->
     <nav class="navbar">
@@ -49,7 +65,7 @@ try {
             </span>
         </div>
         <div>
-            <a href="logout.php" class="btn btn-danger">Terminate Session</a>
+            <a href="logout.php" class="btn btn-danger">Log Out</a>
         </div>
     </nav>
 

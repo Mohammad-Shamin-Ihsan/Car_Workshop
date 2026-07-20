@@ -10,6 +10,14 @@ try {
 } catch (PDOException $e) {
     die("Database error: " . $e->getMessage());
 }
+
+$booking_message = '';
+$booking_message_type = '';
+if (isset($_SESSION['booking_msg'])) {
+    $booking_message = $_SESSION['booking_msg'];
+    $booking_message_type = $_SESSION['booking_msg_type'] ?? 'info';
+    unset($_SESSION['booking_msg'], $_SESSION['booking_msg_type']);
+}
 ?>
 
 <!DOCTYPE html>
@@ -17,11 +25,10 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SYS-CORE // Car Workshop</title>
+    <title>Car Workshop</title>
     <link rel="stylesheet" href="global.css">
 </head>
 <body>
-
     <!-- Cinematic Navbar -->
     <nav class="navbar">
         <div class="nav-links">
@@ -31,9 +38,9 @@ try {
         <div>
             <!-- Dynamic Login/Logout Button -->
             <?php if (isset($_SESSION['user_uuid'])): ?>
-                <a href="logout.php" class="btn btn-danger">Terminate Session (<?php echo htmlspecialchars($_SESSION['name']); ?>)</a>
+                <a href="logout.php" class="btn btn-danger">log Out (<?php echo htmlspecialchars($_SESSION['name']); ?>)</a>
             <?php else: ?>
-                <a href="login.php" class="btn">System Login</a>
+                <a href="login.php" class="btn">Login</a>
             <?php endif; ?>
         </div>
     </nav>
@@ -43,21 +50,27 @@ try {
         <div class="glass-panel" style="max-width: 700px; margin: 0 auto;">
             <h2 style="text-align: center; color: var(--neon-cyan);">Initialize Appointment</h2>
             
+            <?php if (!empty($booking_message)): ?>
+                <div class="alert-card <?php echo $booking_message_type === 'error' ? 'error' : 'success'; ?>">
+                    <?php echo htmlspecialchars($booking_message); ?>
+                </div>
+            <?php endif; ?>
+
             <form action="process_booking.php" method="POST">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                     <div class="form-group">
-                        <label>Client Designation</label>
+                        <label>Name</label>
                         <input type="text" name="client_name" class="form-control" placeholder="Full Name" required>
                     </div>
                     
                     <div class="form-group">
-                        <label>Comms Link</label>
+                        <label>Phones</label>
                         <input type="tel" name="phone" class="form-control" placeholder="Phone Number" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Sector Coordinates</label>
+                    <label>Address</label>
                     <input type="text" name="address" class="form-control" placeholder="Full Address" required>
                 </div>
 
@@ -75,7 +88,7 @@ try {
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                     <div class="form-group">
-                        <label>Target Date</label>
+                        <label>Booking Date</label>
                         <input type="date" name="booked_date" class="form-control" required>
                     </div>
                     
@@ -94,7 +107,7 @@ try {
                 </div>
 
                 <button type="submit" class="btn" style="width: 100%; margin-top: 1rem; padding: 1rem; font-size: 1.3rem;">
-                    Lock Deployment
+                    Book Appointment
                 </button>
             </form>
         </div>
@@ -123,6 +136,6 @@ try {
             </p>
         </div>
     </section>
-
+    
 </body>
 </html>

@@ -1,9 +1,9 @@
 <?php
 // process_booking.php
+session_start(); // Ensure session is started here!
 require 'db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // 1. Retrieve POST data
     $client_name   = $_POST['client_name'];
     $address       = $_POST['address'];
     $phone         = $_POST['phone'];
@@ -12,47 +12,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $booked_date   = $_POST['booked_date'];
     $mechanic_uuid = $_POST['mechanic_uuid'];
     
-    // Default user_uuid to NULL for guest bookings
-    $user_uuid = null; 
+    $user_uuid = isset($_SESSION['user_uuid']) ? $_SESSION['user_uuid'] : null;
 
     try {
-        // 2. Check Mechanic Availability (Max 4 active cars per day)
         $stmt = $pdo->prepare("SELECT COUNT(*) AS active_cars FROM bookings WHERE mechanic_uuid = ? AND booked_date = ?");
         $stmt->execute([$mechanic_uuid, $booked_date]);
         $result = $stmt->fetch();
 
         if ($result['active_cars'] >= 4) {
-            die("Sorry, this mechanic is fully booked on that date. Please select another mechanic or date.");
+            $_SESSION['booking_msg_type'] = 'error';
+            $_SESSION['booking_msg'] = 'DENIED: Technician fully booked on this date.';
+            header("Location: index.php");
+            exit;
         }
 
-        // 3. Insert the Booking
-        // We use MySQL's UUID() function to automatically generate the primary key
-        $insertQuery = "INSERT INTO bookings 
-                        (uuid, user_uuid, client_name, address, phone, car_license, car_engine, booked_date, mechanic_uuid) 
+        $insertQuery = "INSERT INTO bookings (uuid, user_uuid, client_name, address, phone, car_license, car_engine, booked_date, mechanic_uuid) 
                         VALUES (UUID(), ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $insertStmt = $pdo->prepare($insertQuery);
-        $insertStmt->execute([
-            $user_uuid, 
-            $client_name, 
-            $address, 
-            $phone, 
-            $car_license, 
-            $car_engine, 
-            $booked_date, 
-            $mechanic_uuid
-        ]);
+        $insertStmt->execute([$user_uuid, $client_name, $address, $phone, $car_license, $car_engine, $booked_date, $mechanic_uuid]);
 
-        echo "Success! Your appointment has been booked.";
+        $_SESSION['booking_msg_type'] = 'success';
+        $_SESSION['booking_msg'] = 'SUCCESS: Deployment locked.';
+        header("Location: index.php");
+        exit;
 
     } catch (PDOException $e) {
-        // 4. Catch the Composite Unique Constraint violation (Error Code 1062)
         if ($e->getCode() == 23000 || strpos($e->getMessage(), '1062') !== false) {
-            die("Error: You have already booked an appointment for this car on this specific date.");
+            $_SESSION['booking_msg_type'] = 'error';
+            $_SESSION['booking_msg'] = 'DENIED: Vehicle already deployed on this date.';
         } else {
-            // Catch any other database errors
-            die("An error occurred: " . $e->getMessage());
+            $_SESSION['booking_msg_type'] = 'error';
+            $_SESSION['booking_msg'] = 'SYSTEM ERROR: ' . $e->getMessage();
         }
+        header("Location: index.php");
+        exit;
     }
 }
 ?>
